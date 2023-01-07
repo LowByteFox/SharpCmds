@@ -11,8 +11,11 @@
         <Description>SharpCmds is a Discord Bot framework based on top of Discord.Net </Description>
         <PackageProjectUrl>https://github.com/Fire-The-Fox/SharpCmds</PackageProjectUrl>
         <PackageIcon>icon.png</PackageIcon>
+        <PackageIconUrl>https://raw.githubusercontent.com/Fire-The-Fox/SharpCmds/develop/icon.png</PackageIconUrl>
         <RepositoryUrl>https://github.com/Fire-The-Fox/SharpCmds</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -37,6 +40,14 @@
     <ItemGroup>
       <EmbeddedResource Remove="bin\Debug\**" />
       <EmbeddedResource Remove="bin\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
     </ItemGroup>
 
 </Project>

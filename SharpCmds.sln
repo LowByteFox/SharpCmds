@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCmds", "SharpCmds.csproj", "{5D215707-9F27-4997-9A7C-853AD4639ABB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D215707-9F27-4997-9A7C-853AD4639ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D215707-9F27-4997-9A7C-853AD4639ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D215707-9F27-4997-9A7C-853AD4639ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D215707-9F27-4997-9A7C-853AD4639ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>0.1.1</Version>
+        <Title>SharpCmds</Title>
+        <Authors>Ján Gajdoš</Authors>
+        <Description>SharpCmds is a Discord Bot framework based on top of Discord.Net </Description>
+        <PackageProjectUrl>https://github.com/Fire-The-Fox/SharpCmds</PackageProjectUrl>
+        <PackageIcon>icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/Fire-The-Fox/SharpCmds</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Update="icon.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
+      <None Remove="bin\Debug\**" />
+      <None Remove="bin\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Discord.Net" Version="3.9.0" />
+      <PackageReference Include="dotenv.net" Version="3.1.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="bin\Debug\**" />
+      <Compile Remove="bin\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="bin\Debug\**" />
+      <EmbeddedResource Remove="bin\**" />
+    </ItemGroup>
+
+</Project>

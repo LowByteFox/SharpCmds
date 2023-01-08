@@ -5,17 +5,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.1.1</Version>
+        <Version>0.1.2</Version>
         <Title>SharpCmds</Title>
         <Authors>Ján Gajdoš</Authors>
         <Description>SharpCmds is a Discord Bot framework based on top of Discord.Net </Description>
         <PackageProjectUrl>https://github.com/Fire-The-Fox/SharpCmds</PackageProjectUrl>
         <PackageIcon>icon.png</PackageIcon>
-        <PackageIconUrl>https://raw.githubusercontent.com/Fire-The-Fox/SharpCmds/develop/icon.png</PackageIconUrl>
+        <PackageIconUrl></PackageIconUrl>
         <RepositoryUrl>https://github.com/Fire-The-Fox/SharpCmds</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>Added support for text based commands</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>

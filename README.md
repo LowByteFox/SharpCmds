@@ -1,5 +1,5 @@
 # SharpCmds
-<img alt="Icon" src="./icon.png" width="256">
+<img alt="Icon" src="https://raw.githubusercontent.com/Fire-The-Fox/SharpCmds/develop/icon.png" width="256">
 
 ### SharpCmds is a Discord Bot framework based on top of Discord.Net
 

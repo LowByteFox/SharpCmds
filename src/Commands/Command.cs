@@ -1,23 +1,12 @@
-using Discord;
 using Discord.WebSocket;
 
 namespace SharpCmds.Commands;
 
-public abstract class SlashCommand
+public abstract class Command
 {
-    protected string Description { get; init; } = "";
-
-    protected readonly SlashCommandBuilder Cmd = new SlashCommandBuilder();
+    public readonly List<string> args = new List<string>();
     public readonly List<String> Ids = new List<string>();
-
-    public SlashCommandBuilder Build()
-    {
-        Cmd.WithName(GetType().Name.ToLower());
-        Cmd.WithDescription(Description);
-        
-        return Cmd;
-    }
-
+    
     protected string CustomId(String id)
     {
         var clsName = GetType().Name.ToLower();
@@ -29,8 +18,8 @@ public abstract class SlashCommand
         return $"{clsName}_{id}";
     }
 
-    public abstract Task Run(SocketSlashCommand command);
-
+    public abstract Task Run(SharpContext ctx);
+    
     public virtual Task OnComponent(SocketMessageComponent component)
     {
         return Task.CompletedTask;

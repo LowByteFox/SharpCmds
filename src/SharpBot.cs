@@ -1,4 +1,5 @@
 using Discord;
+using Discord.Commands;
 using Discord.Net;
 using Discord.WebSocket;
 using dotenv.net;
@@ -19,16 +20,20 @@ public abstract class SharpBot
     private readonly IDictionary<string, string?> _env;
     
     protected DiscordSocketClient Client;
+    private readonly Dictionary<string, Command> _botCtxCommands = new Dictionary<string, Command>();
+    private readonly Dictionary<string, Command> _botCtxComponents = new Dictionary<string, Command>();
     private readonly Dictionary<string, SlashCommand> _botCommands = new Dictionary<string, SlashCommand>();
     private readonly Dictionary<string, SlashCommand> _botComponents = new Dictionary<string, SlashCommand>();
     
     private readonly Dictionary<ulong, long> _timeouts = new Dictionary<ulong, long>();
 
     // * Bot Settings
+    protected string Prefix { get; init; } = "SharpBot!";
     protected long Timeout { get; init; }
     protected CommandType Type { get; init; }
     protected ulong DevGuildId { get; init; }
     protected string WaitMsg { get; init; } = "Please wait {0} seconds!";
+    protected string NotEnoughArgs { get; init; } = "Not enough args!";
     
     protected SharpBot()
     {
@@ -46,9 +51,10 @@ public abstract class SharpBot
         Client.Log += Log;
         Client.Ready += ClientReady;
         Client.SlashCommandExecuted += SlashHandler;
-        Client.ButtonExecuted += ButtonHandler;
-        Client.SelectMenuExecuted += MenuHandler;
-        // _client.ModalSubmitted += ModalHandler;
+        Client.ButtonExecuted += ComponentHandler;
+        Client.SelectMenuExecuted += ComponentHandler;
+        Client.ModalSubmitted += ComponentHandler;
+        Client.MessageReceived += CommandHandler;
 
         await Client.LoginAsync(TokenType.Bot, _env["TOKEN"]);
         await Client.StartAsync();
@@ -84,36 +90,104 @@ public abstract class SharpBot
     
     private async Task SlashHandler(SocketSlashCommand command)
     {
-        long now = DateTimeOffset.Now.ToUnixTimeSeconds();
-        if (!_timeouts.ContainsKey(command.User.Id))
+        if (CheckTimeout(command.User.Id))
         {
-            _timeouts.Add(command.User.Id, now + Timeout);
-        }
-        else
-        {
-            long user = _timeouts[command.User.Id];
-            if (user > now)
-            {
-                await command.RespondAsync(String.Format(WaitMsg, user - now), ephemeral: true);
-                return;
-            }
-                
-            _timeouts[command.User.Id] = now + Timeout;
+            await command.RespondAsync(String.Format(WaitMsg, 
+                _timeouts[command.User.Id] - DateTimeOffset.Now.ToUnixTimeSeconds()), ephemeral: true);
+            return;
         }
         var cls = _botCommands[command.Data.Name];
         await cls.Run(command);
     }
-    
-    private async Task ButtonHandler(SocketMessageComponent component)
+
+    private bool CheckTimeout(ulong id)
     {
-        var cls = _botComponents[component.Data.CustomId];
-        await cls.OnComponent(component);
+        long now = DateTimeOffset.Now.ToUnixTimeSeconds();
+        if (!_timeouts.ContainsKey(id))
+        {
+            _timeouts.Add(id, now + Timeout);
+        }
+        else
+        {
+            long user = _timeouts[id];
+            if (user > now)
+            {
+                return true;
+            }
+                
+            _timeouts[id] = now + Timeout;
+        }
+
+        return false;
+    }
+
+    private async Task CommandHandler(SocketMessage message)
+    {
+        var msg = message as SocketUserMessage;
+        if (msg == null) return;
+
+        if (msg.Author.IsBot) return;
+        if (!msg.CleanContent.StartsWith(Prefix)) return;
+
+        SharpContext context = new SharpContext(Client, msg);
+
+        var clearMsg = msg.Content.Replace(Prefix, "").Split(" ");
+        var name = clearMsg[0];
+        if (!_botCtxCommands.ContainsKey(name))
+        {
+            LogColor($"Command {name} doesn't exist!", "Warning", ConsoleColor.Yellow);
+            return;
+        }
+        
+        if (CheckTimeout(msg.Author.Id))
+        {
+            await msg.ReplyAsync(String.Format(WaitMsg, 
+                _timeouts[msg.Author.Id] - DateTimeOffset.Now.ToUnixTimeSeconds()));
+            return;
+        }
+        
+        var cmd = _botCtxCommands[name];
+
+        if (cmd.args.Count() + 1 != clearMsg.Length)
+        {
+            await msg.ReplyAsync(NotEnoughArgs);
+            return;
+        }
+        
+        for (var i = 0; i < cmd.args.Count; i++)
+        {
+            context.args.Add(cmd.args[i], clearMsg[i + 1]);
+        }
+
+        await cmd.Run(context);
     }
     
-    private async Task MenuHandler(SocketMessageComponent component)
+    private async Task ComponentHandler(SocketMessageComponent component)
     {
-        var cls = _botComponents[component.Data.CustomId];
-        await cls.OnComponent(component);
+        if (_botCtxComponents.ContainsKey(component.Data.CustomId))
+        {
+            var cls = _botCtxComponents[component.Data.CustomId];
+            await cls.OnComponent(component);
+        }
+        else
+        {
+            var cls = _botComponents[component.Data.CustomId];
+            await cls.OnComponent(component);
+        }
+    }
+    
+    private async Task ComponentHandler(SocketModal component)
+    {
+        if (_botCtxComponents.ContainsKey(component.Data.CustomId))
+        {
+            var cls = _botCtxComponents[component.Data.CustomId];
+            await cls.OnComponent(component);
+        }
+        else
+        {
+            var cls = _botComponents[component.Data.CustomId];
+            await cls.OnComponent(component);
+        }
     }
 
     private void RegisterComponents(SlashCommand var)
@@ -124,9 +198,23 @@ public abstract class SharpBot
         }
     }
     
+    private void RegisterComponents(Command var)
+    {
+        foreach (var id in var.Ids)
+        {
+            _botCtxComponents.Add(id, var);
+        }
+    }
+    
     protected void RegisterSlashCommand(SlashCommand var) {
         _botCommands.Add(var.GetType().Name.ToLower(), var);
         RegisterComponents(var);
+    }
+
+    protected void RegisterCommand(Command cmd)
+    {
+        _botCtxCommands.Add(cmd.GetType().Name.ToLower(), cmd);
+        RegisterComponents(cmd);
     }
 
     protected virtual Task Ready()
